@@ -16,7 +16,7 @@ namespace uSync.Engage.Handlers;
 /// <remarks>
 ///  Engage raises no events for permissions, so these are only written by a full export.
 /// </remarks>
-[SyncHandler("engageUserGroupPermissionHandler", "Engage User Group Permissions", EngageConstants.Folders.UserGroupPermissions, EngageConstants.Priorities.UserGroupPermissions,
+[SyncHandler("engageUserGroupPermissionHandler", "User Perms", EngageConstants.Folders.UserGroupPermissions, EngageConstants.Priorities.UserGroupPermissions,
     Icon = "icon-users-alt", EntityType = EngageConstants.UdiEntityType.UserGroupPermission)]
 public class UserGroupPermissionHandler : EngageSyncHandlerBase<UserGroupPermission>, ISyncHandler
 {

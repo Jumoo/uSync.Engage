@@ -13,7 +13,7 @@ using uSync.Core;
 
 namespace uSync.Engage.Handlers;
 
-[SyncHandler("engageSegmentHandler", "Engage Segments", EngageConstants.Folders.Segments, EngageConstants.Priorities.Segments,
+[SyncHandler("engageSegmentHandler", "Segments", EngageConstants.Folders.Segments, EngageConstants.Priorities.Segments,
     Icon = "icon-filter", EntityType = EngageConstants.UdiEntityType.Segment)]
 public class SegmentHandler : EngageSyncHandlerBase<Segment>, ISyncHandler
 {

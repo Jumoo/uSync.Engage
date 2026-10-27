@@ -13,7 +13,7 @@ using uSync.Core;
 
 namespace uSync.Engage.Handlers;
 
-[SyncHandler("engageCampaignGroupHandler", "Engage Campaign Groups", EngageConstants.Folders.CampaignGroups, EngageConstants.Priorities.CampaignGroups,
+[SyncHandler("engageCampaignGroupHandler", "Campaign Groups", EngageConstants.Folders.CampaignGroups, EngageConstants.Priorities.CampaignGroups,
     Icon = "icon-megaphone", EntityType = EngageConstants.UdiEntityType.CampaignGroup)]
 public class CampaignGroupHandler : EngageSyncHandlerBase<CampaignGroup>, ISyncHandler
 {

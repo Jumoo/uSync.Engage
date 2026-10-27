@@ -14,7 +14,7 @@ using uSync.Core;
 
 namespace uSync.Engage.Handlers;
 
-[SyncHandler("engageTrafficFilterHandler", "Engage Traffic Filters", EngageConstants.Folders.TrafficFilters, EngageConstants.Priorities.TrafficFilters,
+[SyncHandler("engageTrafficFilterHandler", "Traffic Filters", EngageConstants.Folders.TrafficFilters, EngageConstants.Priorities.TrafficFilters,
     Icon = "icon-block", EntityType = EngageConstants.UdiEntityType.TrafficFilter)]
 public class TrafficFilterHandler : EngageSyncHandlerBase<TrafficFilter>, ISyncHandler
 {

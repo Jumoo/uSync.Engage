@@ -17,7 +17,7 @@ namespace uSync.Engage.Handlers;
 /// <remarks>
 ///  Engage raises no events for permissions, so these are only written by a full export.
 /// </remarks>
-[SyncHandler("engageDocumentTypePermissionHandler", "Engage Document Type Permissions", EngageConstants.Folders.DocumentTypePermissions, EngageConstants.Priorities.DocumentTypePermissions,
+[SyncHandler("engageDocumentTypePermissionHandler", "Doc Perms", EngageConstants.Folders.DocumentTypePermissions, EngageConstants.Priorities.DocumentTypePermissions,
     Icon = "icon-lock", EntityType = EngageConstants.UdiEntityType.DocumentTypePermission)]
 public class DocumentTypePermissionHandler : EngageSyncHandlerBase<DocumentTypePermission>, ISyncHandler
 {

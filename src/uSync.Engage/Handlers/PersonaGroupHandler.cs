@@ -13,7 +13,7 @@ using uSync.Core;
 
 namespace uSync.Engage.Handlers;
 
-[SyncHandler("engagePersonaGroupHandler", "Engage Personas", EngageConstants.Folders.PersonaGroups, EngageConstants.Priorities.PersonaGroups,
+[SyncHandler("engagePersonaGroupHandler", "Personas", EngageConstants.Folders.PersonaGroups, EngageConstants.Priorities.PersonaGroups,
     Icon = "icon-users", EntityType = EngageConstants.UdiEntityType.PersonaGroup)]
 public class PersonaGroupHandler : EngageSyncHandlerBase<PersonaGroup>, ISyncHandler
 {

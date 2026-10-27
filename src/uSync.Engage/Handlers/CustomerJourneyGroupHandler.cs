@@ -13,7 +13,7 @@ using uSync.Core;
 
 namespace uSync.Engage.Handlers;
 
-[SyncHandler("engageCustomerJourneyHandler", "Engage Customer Journeys", EngageConstants.Folders.CustomerJourneyGroups, EngageConstants.Priorities.CustomerJourneyGroups,
+[SyncHandler("engageCustomerJourneyHandler", "Customer Journeys", EngageConstants.Folders.CustomerJourneyGroups, EngageConstants.Priorities.CustomerJourneyGroups,
     Icon = "icon-route", EntityType = EngageConstants.UdiEntityType.CustomerJourneyGroup)]
 public class CustomerJourneyGroupHandler : EngageSyncHandlerBase<CustomerJourneyGroup>, ISyncHandler
 {

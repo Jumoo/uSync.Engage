@@ -13,7 +13,7 @@ using uSync.Core;
 
 namespace uSync.Engage.Handlers;
 
-[SyncHandler("engageGoalHandler", "Engage Goals", EngageConstants.Folders.Goals, EngageConstants.Priorities.Goals,
+[SyncHandler("engageGoalHandler", "Goals", EngageConstants.Folders.Goals, EngageConstants.Priorities.Goals,
     Icon = "icon-target", EntityType = EngageConstants.UdiEntityType.Goal)]
 public class GoalHandler : EngageSyncHandlerBase<IGoal>, ISyncHandler
 {
