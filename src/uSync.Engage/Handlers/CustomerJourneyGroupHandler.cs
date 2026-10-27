@@ -14,7 +14,7 @@ using uSync.Core;
 namespace uSync.Engage.Handlers;
 
 [SyncHandler("engageCustomerJourneyHandler", "Customer Journeys", EngageConstants.Folders.CustomerJourneyGroups, EngageConstants.Priorities.CustomerJourneyGroups,
-    Icon = "icon-route", EntityType = EngageConstants.UdiEntityType.CustomerJourneyGroup)]
+    Icon = "icon-footprints", EntityType = EngageConstants.UdiEntityType.CustomerJourneyGroup)]
 public class CustomerJourneyGroupHandler : EngageSyncHandlerBase<CustomerJourneyGroup>, ISyncHandler
 {
     private readonly ICustomerJourneyGroupRepository _repository;
