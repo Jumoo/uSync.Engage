@@ -187,10 +187,22 @@ public class SegmentSerializer : EngageSerializerBase<Segment>
 
         if (json is null) return config;
 
-        // the backoffice sends whatever casing it likes, Engage reads it case-insensitively.
-        var property = json.FirstOrDefault(x => x.Key.Equals(reference.Property, StringComparison.OrdinalIgnoreCase));
-        if (property.Value is not JsonArray values) return config;
+        // the backoffice sends whatever casing it likes, Engage reads it case-insensitively,
+        // and a config saved in the backoffice can keep an older casing alongside the new one.
+        var properties = json
+            .Where(x => x.Key.Equals(reference.Property, StringComparison.OrdinalIgnoreCase) && x.Value is JsonArray)
+            .Select(x => x.Key)
+            .ToList();
+        if (properties.Count == 0) return config;
 
+        foreach (var property in properties)
+            json[property] = ConvertValues(type, (JsonArray)json[property]!, reference.Type, toKeys, changes, ruleKey);
+
+        return json.ToJsonString();
+    }
+
+    private JsonArray ConvertValues(string type, JsonArray values, ReferenceType referenceType, bool toKeys, List<uSyncChange> changes, Guid ruleKey)
+    {
         var converted = new JsonArray();
         foreach (var value in values)
         {
@@ -198,22 +210,21 @@ public class SegmentSerializer : EngageSerializerBase<Segment>
 
             if (toKeys)
             {
-                if (long.TryParse(value.ToString(), out var id) && GetKey(reference.Type, id) is Guid itemKey)
+                if (long.TryParse(value.ToString(), out var id) && GetKey(referenceType, id) is Guid itemKey)
                     converted.Add(itemKey.ToString());
                 else
                     converted.Add(value.DeepClone());
             }
             else
             {
-                if (Guid.TryParse(value.ToString(), out var itemKey) && GetId(reference.Type, itemKey) is long id)
+                if (Guid.TryParse(value.ToString(), out var itemKey) && GetId(referenceType, itemKey) is long id)
                     converted.Add(id);
                 else
-                    changes.Add(uSyncChange.Warning($"Rules/{type}", ruleKey.ToString(), $"{reference.Type} {value} not found on this site, removed from the rule"));
+                    changes.Add(uSyncChange.Warning($"Rules/{type}", ruleKey.ToString(), $"{referenceType} {value} not found on this site, removed from the rule"));
             }
         }
 
-        json[property.Key] = converted;
-        return json.ToJsonString();
+        return converted;
     }
 
     private Guid? GetKey(ReferenceType type, long id) => type switch
