@@ -40,3 +40,22 @@ updates:
         update-types:
           - "minor"
           - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/src/uSync.Engage.Complete/Client"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # pinned for the same reason as Umbraco.* above.
+      - dependency-name: "@umbraco-cms/*"
+      - dependency-name: "@jumoo/*"
+      # TypeScript stays on v5 across every Jumoo client.
+      - dependency-name: "typescript"
+        versions: [">= 6.0.0"]
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

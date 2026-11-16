@@ -4,5 +4,6 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="src/uSync.Engage/uSync.Engage.csproj" />
+  <Project Path="src/uSync.Engage.Complete/uSync.Engage.Complete.csproj" />
   <Project Path="test/uSync.Engage.Site/uSync.Engage.Site.csproj" />
 </Solution>

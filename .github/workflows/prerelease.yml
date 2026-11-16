@@ -19,6 +19,7 @@ env:
   config: Release
   out_folder: ./build-out/
   package_project: ./src/uSync.Engage/uSync.Engage.csproj
+  complete_project: ./src/uSync.Engage.Complete/uSync.Engage.Complete.csproj
   first_version: 17.0.0
 
 jobs:
@@ -31,6 +32,12 @@ jobs:
           # full history - the prerelease version step below walks tag ancestry
           # (git tag --merged) to find the last release on this branch.
           fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: npm
+          cache-dependency-path: "**/package-lock.json"
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -57,19 +64,27 @@ jobs:
           echo "version=${base_version}-prerelease.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
       - name: restore
-        run: dotnet restore ${{ env.package_project }} --locked-mode
+        run: dotnet restore ${{ env.complete_project }} --locked-mode
 
       - name: build
         run: >
-          dotnet build ${{ env.package_project }}
+          dotnet build ${{ env.complete_project }}
           -c ${{ env.config }} --no-restore
           -p:ContinuousIntegrationBuild=true
 
       # deliberately not --no-build: the version has to be stamped onto the assembly as well
       # as the nuspec, so this step rebuilds with it.
-      - name: package
+      - name: package uSync.Engage
         run: >
           dotnet pack ${{ env.package_project }}
+          -c ${{ env.config }}
+          --output ${{ env.out_folder }}
+          /p:version=${{ steps.prerelease_version.outputs.version }}
+          -p:ContinuousIntegrationBuild=true
+
+      - name: package uSync.Engage.Complete
+        run: >
+          dotnet pack ${{ env.complete_project }}
           -c ${{ env.config }}
           --output ${{ env.out_folder }}
           /p:version=${{ steps.prerelease_version.outputs.version }}

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+- `uSync.Engage.Complete` package: uSync.Complete push and pull for persona groups, customer
+  journeys, goals, campaign groups, segments and traffic filters, from Engage's own actions
+  menus (#2).
+- uSync.Complete item managers and dependency checkers for those types in `uSync.Engage`.
+
 ## [17.0.0-beta01] - 2026-10-27
 
 First beta, for Umbraco 17, uSync 17.3.5+ and Umbraco Engage 17.5+.

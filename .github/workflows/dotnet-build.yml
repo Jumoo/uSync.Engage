@@ -20,6 +20,7 @@ concurrency:
 env:
   config: Release
   package_project: ./src/uSync.Engage/uSync.Engage.csproj
+  complete_project: ./src/uSync.Engage.Complete/uSync.Engage.Complete.csproj
 
 jobs:
   build-project:
@@ -28,6 +29,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # uSync.Engage.Complete builds its Client folder from an MSBuild target during
+      # `dotnet build` (RestoreClient/BuildClient in its csproj), so node has to be on PATH.
+      # building it builds uSync.Engage too, through the project reference.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: npm
+          cache-dependency-path: "**/package-lock.json"
+
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
@@ -35,11 +45,11 @@ jobs:
           cache-dependency-path: "**/packages.lock.json"
 
       - name: restore
-        run: dotnet restore ${{ env.package_project }} --locked-mode
+        run: dotnet restore ${{ env.complete_project }} --locked-mode
 
       - name: build
         run: >
-          dotnet build ${{ env.package_project }}
+          dotnet build ${{ env.complete_project }}
           -c ${{ env.config }} --no-restore
           -p:ContinuousIntegrationBuild=true
 

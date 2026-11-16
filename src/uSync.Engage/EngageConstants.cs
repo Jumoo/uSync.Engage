@@ -71,4 +71,17 @@ public static class EngageConstants
             PersonaGroup, CustomerJourneyGroup, Goal, CampaignGroup,
             Segment, TrafficFilter, DocumentTypePermission, UserGroupPermission];
     }
+
+    /// <summary>
+    ///  entity types Engage's own backoffice gives these items, where they differ from ours.
+    /// </summary>
+    /// <remarks>
+    ///  uSync.Complete's push/pull menus send the backoffice entity type, so the item
+    ///  managers answer to both, and it's registered as a udi type (the menus only show
+    ///  for entity types that parse as one). The others are the same string in both places.
+    /// </remarks>
+    public static class ClientEntityType
+    {
+        public const string CustomerJourneyGroup = "engage-customer-journey-group";
+    }
 }

@@ -42,6 +42,10 @@ public static class BuilderuSyncEngageExtension
             UdiParser.RegisterUdiType(entityType, UdiType.GuidUdi);
         }
 
+        // uSync.Complete's push and pull menus only show when the backoffice entity type
+        // parses as a udi, so Engage's own name for journeys has to be known as well.
+        UdiParser.RegisterUdiType(EngageConstants.ClientEntityType.CustomerJourneyGroup, UdiType.GuidUdi);
+
         builder.Services.AddSingleton<IPackageManifestReader, uSyncEngageManifestReader>();
 
         return builder;
