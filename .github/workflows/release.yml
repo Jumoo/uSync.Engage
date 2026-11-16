@@ -24,6 +24,7 @@ env:
   config: Release
   out_folder: ./build-out/
   package_project: ./src/uSync.Engage/uSync.Engage.csproj
+  complete_project: ./src/uSync.Engage.Complete/uSync.Engage.Complete.csproj
   nuget_source: https://api.nuget.org/v3/index.json
 
 jobs:
@@ -81,6 +82,12 @@ jobs:
             exit 1
           fi
 
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: npm
+          cache-dependency-path: "**/package-lock.json"
+
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
@@ -88,19 +95,27 @@ jobs:
           cache-dependency-path: "**/packages.lock.json"
 
       - name: restore
-        run: dotnet restore ${{ env.package_project }} --locked-mode
+        run: dotnet restore ${{ env.complete_project }} --locked-mode
 
       - name: build
         run: >
-          dotnet build ${{ env.package_project }}
+          dotnet build ${{ env.complete_project }}
           -c ${{ env.config }} --no-restore
           -p:ContinuousIntegrationBuild=true
 
       # deliberately not --no-build: the version has to be stamped onto the assembly
       # as well as the nuspec, so this rebuilds with it.
-      - name: package
+      - name: package uSync.Engage
         run: >
           dotnet pack ${{ env.package_project }}
+          -c ${{ env.config }}
+          --output ${{ env.out_folder }}
+          /p:version=${{ steps.version.outputs.version }}
+          -p:ContinuousIntegrationBuild=true
+
+      - name: package uSync.Engage.Complete
+        run: >
+          dotnet pack ${{ env.complete_project }}
           -c ${{ env.config }}
           --output ${{ env.out_folder }}
           /p:version=${{ steps.version.outputs.version }}

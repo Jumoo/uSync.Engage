@@ -12,6 +12,23 @@ const names = {
 };
 
 export default {
-  uSync: names,
+  uSync: {
+    ...names,
+    // title of the Engage box on the uSync dashboard (uSync_group{handler group}).
+    groupEngage: "Engage",
+  },
   usyncpublish: names,
+  // the handler labels uSync's progress view shows while it runs, keyed by the
+  // camelCased handler name (treeHeaders_{name}). Without these it shows the raw
+  // camelCased names (customerJourneys, docPerms, ...).
+  treeHeaders: {
+    personas: "Personas",
+    customerJourneys: "Customer Journeys",
+    goals: "Goals",
+    campaignGroups: "Campaign Groups",
+    segments: "Segments",
+    trafficFilters: "Traffic Filters",
+    docPerms: "Doc Perms",
+    userPerms: "User Perms",
+  },
 };

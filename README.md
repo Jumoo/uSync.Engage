@@ -48,6 +48,20 @@ dotnet add package uSync.Engage
 Requires Umbraco 17, uSync 17 and Umbraco Engage 17.5 or later. The handlers are in the
 `Engage` group and run after all of the core uSync handlers.
 
+## Push and pull with uSync.Complete
+
+```
+dotnet add package uSync.Engage.Complete
+```
+
+With uSync.Complete installed, this adds Push and Pull
+to the actions menu of persona groups, customer journeys, goals, campaign groups, segments
+and traffic filters in Engage. Document type and user group permissions have no actions menu
+in Engage, so they still move with a full sync.
+
+Each item is sent on its own. Anything it refers to (personas, journey steps, goals, content)
+needs to be on the other site already, or be pushed first.
+
 ## Notes
 
 - Engage saves through its own database connection, outside Umbraco's transaction, so a

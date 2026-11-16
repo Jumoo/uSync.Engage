@@ -22,10 +22,36 @@ dotnet build src/uSync.Engage/uSync.Engage.csproj -c Release
 dotnet pack src/uSync.Engage/uSync.Engage.csproj -c Release
 ```
 
-Build and pack the **project**, as CI does. There is no client build: the localization file
-under `wwwroot/App_Plugins/uSync.Engage` is static, and the manifest is built in code
-(`uSyncEngageManifestReader`). There are no automated tests; behaviour is checked against
-`test/uSync.Engage.Site`.
+```bash
+dotnet pack src/uSync.Engage.Complete/uSync.Engage.Complete.csproj -c Release
+```
+
+Build and pack the **projects**, not the solution, as CI does. `uSync.Engage` has no client
+build: the localization file under `wwwroot/App_Plugins/uSync.Engage` is static, and the
+manifest is built in code (`uSyncEngageManifestReader`). `uSync.Engage.Complete` builds its
+`Client` folder with npm from an MSBuild target, so node has to be on PATH. There are no
+automated tests; behaviour is checked against `test/uSync.Engage.Site`.
+
+## uSync.Engage.Complete (push and pull)
+
+Modelled on `uSync.Forms.Complete`. The Complete package is only the client: `publisher-push`
+and `publisher-pull` entity actions for Engage's backoffice entity types. The server side
+lives in `uSync.Engage`, and only uSync.Complete loads it:
+
+- `Sync/`: `ISyncItemManager`s that turn an entity's unique into a uSync item. Engage's
+  backoffice uses the item's **key** as its unique (its detail endpoints take a `Guid`).
+- `Dependencies/`: `ISyncDependencyChecker`s. Publisher sends only what these return, so
+  without them a push sends nothing. Each returns just the item itself.
+
+Engage's entity types match our UDI types except journeys (`engage-customer-journey-group`
+in Engage, `engage-journey-group` here), so that item manager answers to both, and Engage's
+name is registered as a UDI type too: Publisher's push/pull condition hides the menu items for
+any entity type that doesn't parse as a UDI. Permissions have no entity actions in Engage, so
+they can't be pushed.
+
+Tested between a source/target pair (`C:\Source\Testing\v17\EngageComplete.v17`, LocalDB,
+uSync.Complete 17.7.2): push of every type, pull of a persona group, with persona, goal and
+journey step ids remapped on the other site.
 
 **Engage refuses to start on SQLite**, so the test site uses SQL Server LocalDB
 (`uSyncEngageSite`). Create the database before the first run, Umbraco won't on LocalDB.
