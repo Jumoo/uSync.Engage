@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Fixed
+
+- A new segment took the bottom of Engage's list on its first import instead of the sort order
+  in its uSync file.
+- Persona and journey step icons from Engage's own image library were lost when an item moved
+  to another site, because Engage gives those images new keys on every site. Icons now carry
+  the image's media path too, and are found by path when the key isn't there.
+- Export results on the uSync dashboard were all grouped under "Other" instead of by Engage
+  item type.
+
 ## [17.0.0-beta02] - 2026-11-16
 
 ### Added

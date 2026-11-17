@@ -143,10 +143,16 @@ public class SegmentSerializer : EngageSerializerBase<Segment>
         _repository.Save(segment);
 
         // a new segment always goes to the bottom of the list, put it where the file says.
-        if (segmentId == 0 && segment.Id > 0 && segment.SortOrder != sortOrder)
-            _repository.UpdatePriority(segment.Id, sortOrder);
+        // the repository doesn't write the new id (or sort order) back onto segment, so
+        // re-read the saved row by key to see where it actually went.
+        var saved = _repository.GetById(key);
+        if (segmentId == 0 && saved is not null && saved.SortOrder != sortOrder)
+        {
+            _repository.UpdatePriority(saved.Id, sortOrder);
+            saved = _repository.GetById(key);
+        }
 
-        return Succeed(alias, _repository.GetById(key) ?? segment, changes);
+        return Succeed(alias, saved ?? segment, changes);
     }
 
     /// <summary>
