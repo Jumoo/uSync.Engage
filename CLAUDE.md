@@ -87,6 +87,11 @@ Things learned doing that:
   (`Persona`, `CustomerJourney`, `Goal` rules), persona/step icons (media, when >= 1000) and
   document type permissions. `EngageReferenceMapper` swaps them for keys. Pageview goals and
   visited-pages rules already use content keys.
+- **Engage's icon library has new keys on every site.** It creates `Engage/Persona/...` and
+  `Engage/Customer Journey/...` media on install, same names and ids, different keys. Icons are
+  written as the media key with a `Path` attribute, and import falls back to the path.
+  `PersonalizationGroupSerializerBase.CleanseNode` compares icons by the media they resolve to
+  here, otherwise a path match would show as a change on every report.
 - **Engage writes on its own SQL connection**, not in Umbraco's scope.
 
 ## Export on save

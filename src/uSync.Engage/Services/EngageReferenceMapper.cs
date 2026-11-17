@@ -16,17 +16,20 @@ public class EngageReferenceMapper
     private readonly ICustomerJourneyGroupRepository _customerJourneyGroupRepository;
     private readonly IGoalService _goalService;
     private readonly IIdKeyMap _idKeyMap;
+    private readonly IEntityService _entityService;
 
     public EngageReferenceMapper(
         IPersonaGroupRepository personaGroupRepository,
         ICustomerJourneyGroupRepository customerJourneyGroupRepository,
         IGoalService goalService,
-        IIdKeyMap idKeyMap)
+        IIdKeyMap idKeyMap,
+        IEntityService entityService)
     {
         _personaGroupRepository = personaGroupRepository;
         _customerJourneyGroupRepository = customerJourneyGroupRepository;
         _goalService = goalService;
         _idKeyMap = idKeyMap;
+        _entityService = entityService;
     }
 
     // personas, journey steps and goals are read from Engage's caches, which Engage resets
@@ -56,6 +59,58 @@ public class EngageReferenceMapper
 
     public int? GetMediaId(Guid? key)
         => key.HasValue ? AttemptToNullable(_idKeyMap.GetIdForKey(key.Value, UmbracoObjectTypes.Media)) : null;
+
+    /// <summary>
+    ///  the media item's path by name ("Engage/Persona/Male 3"), or null if it's missing or in the bin.
+    /// </summary>
+    /// <remarks>
+    ///  Engage creates its persona and journey step icons on every site, with the same names in
+    ///  the same folders but new keys, so the path finds them where the key can't.
+    /// </remarks>
+    public string? GetMediaPath(int? id)
+    {
+        if (id is not > 0) return null;
+
+        var entity = _entityService.Get(id.Value, UmbracoObjectTypes.Media);
+        if (entity is null || entity.Trashed) return null;
+
+        var ids = entity.Path.Split(',')
+            .Select(x => int.TryParse(x, out var i) ? i : 0)
+            .Where(x => x > 0)
+            .ToArray();
+
+        var names = _entityService.GetAll(UmbracoObjectTypes.Media, ids)
+            .ToDictionary(x => x.Id, x => x.Name);
+
+        var path = ids.Select(x => names.GetValueOrDefault(x)).ToList();
+        return path.Any(x => string.IsNullOrEmpty(x) || x.Contains('/')) ? null : string.Join('/', path);
+    }
+
+    /// <summary>
+    ///  the id of the media item at a path from <see cref="GetMediaPath"/>, first match by sort order.
+    /// </summary>
+    public int? GetMediaIdByPath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return null;
+
+        int? parentId = null;
+        foreach (var name in path.Split('/'))
+        {
+            var children = parentId is null
+                ? _entityService.GetRootEntities(UmbracoObjectTypes.Media)
+                : _entityService.GetChildren(parentId.Value, UmbracoObjectTypes.Media);
+
+            var match = children
+                .Where(x => !x.Trashed)
+                .OrderBy(x => x.SortOrder)
+                .FirstOrDefault(x => name.Equals(x.Name, StringComparison.OrdinalIgnoreCase));
+
+            if (match is null) return null;
+            parentId = match.Id;
+        }
+
+        return parentId;
+    }
 
     public Guid? GetDocumentTypeKey(int id)
         => AttemptToNullable(_idKeyMap.GetKeyForId(id, UmbracoObjectTypes.DocumentType));

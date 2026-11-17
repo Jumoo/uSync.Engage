@@ -88,7 +88,7 @@ public abstract class PersonalizationGroupSerializerBase<TGroup, TItem> : Engage
                 new XAttribute("Key", child.Key),
                 new XElement("Title", child.Title ?? string.Empty),
                 new XElement("Description", child.Description ?? string.Empty),
-                new XElement("Icon", GetIconValue(child.Icon)),
+                GetIconElement(child.Icon),
                 new XElement("Color", child.Color ?? string.Empty)));
         }
         node.Add(items);
@@ -141,7 +141,7 @@ public abstract class PersonalizationGroupSerializerBase<TGroup, TItem> : Engage
                 Key = itemKey == Guid.Empty ? Guid.NewGuid() : itemKey,
                 Title = title,
                 Description = element.Element("Description").ValueOrDefault(string.Empty),
-                Icon = GetIconId(element.Element("Icon").ValueOrDefault(string.Empty), title, changes),
+                Icon = GetIconId(element.Element("Icon"), title, changes),
                 Color = element.Element("Color").ValueOrDefault(string.Empty),
                 Created = match?.Created ?? DateTime.UtcNow,
                 CreatedByUmbracoUserKey = match?.CreatedByUmbracoUserKey ?? ImportUserKey,
@@ -158,27 +158,93 @@ public abstract class PersonalizationGroupSerializerBase<TGroup, TItem> : Engage
     }
 
     /// <summary>
-    ///  icons of 1000 or more are media ids (Engage's own rule), stored here as the media key.
+    ///  icons of 1000 or more are media ids (Engage's own rule), stored here as the media key
+    ///  with the media's path by name alongside.
     /// </summary>
-    private string GetIconValue(int? icon)
+    /// <remarks>
+    ///  Engage creates its own icon library on every site with new keys, so on another site the
+    ///  key is only there if the media has been synced. the path finds Engage's copy when it isn't.
+    /// </remarks>
+    private XElement GetIconElement(int? icon)
     {
-        if (icon is null) return string.Empty;
-        if (icon >= 1000) return _referenceMapper.GetMediaKey(icon)?.ToString() ?? string.Empty;
-        return icon.Value.ToString();
+        // string.Empty keeps empty icons as <Icon></Icon>, as files from earlier versions have them.
+        var element = new XElement("Icon", string.Empty);
+        if (icon is null) return element;
+
+        if (icon >= 1000)
+        {
+            element.Value = _referenceMapper.GetMediaKey(icon)?.ToString() ?? string.Empty;
+            var path = _referenceMapper.GetMediaPath(icon);
+            if (path is not null) element.SetAttributeValue("Path", path);
+        }
+        else
+        {
+            element.Value = icon.Value.ToString();
+        }
+
+        return element;
     }
 
-    private int? GetIconId(string value, string itemName, List<uSyncChange> changes)
+    private int? GetIconId(XElement? element, string itemName, List<uSyncChange> changes)
     {
+        var value = element.ValueOrDefault(string.Empty);
+        if (string.IsNullOrWhiteSpace(value)) return null;
+
+        var id = ResolveIcon(element!);
+        if (id is null && Guid.TryParse(value, out var mediaKey))
+        {
+            var path = element!.Attribute("Path")?.Value;
+            changes.Add(uSyncChange.Warning($"{ItemElementName}/{itemName}", "Icon",
+                string.IsNullOrWhiteSpace(path)
+                    ? $"Media {mediaKey} not found, icon not set"
+                    : $"Media {mediaKey} ({path}) not found, icon not set"));
+        }
+
+        return id;
+    }
+
+    /// <summary>
+    ///  the icon this site would use for an Icon element: the media with that key, else the
+    ///  media at that path, or a plain (pre-media) icon number.
+    /// </summary>
+    private int? ResolveIcon(XElement element)
+    {
+        var value = element.Value;
         if (string.IsNullOrWhiteSpace(value)) return null;
 
         if (Guid.TryParse(value, out var mediaKey))
         {
-            var id = _referenceMapper.GetMediaId(mediaKey);
-            if (id is null)
-                changes.Add(uSyncChange.Warning($"{ItemElementName}/{itemName}", "Icon", $"Media {mediaKey} not found, icon not set"));
-            return id;
+            return _referenceMapper.GetMediaId(mediaKey)
+                ?? _referenceMapper.GetMediaIdByPath(element.Attribute("Path")?.Value);
         }
 
         return int.TryParse(value, out var icon) ? icon : null;
+    }
+
+    /// <summary>
+    ///  icons are compared by the media they point to on this site, not by key and path.
+    /// </summary>
+    /// <remarks>
+    ///  an icon found by path (or a copy of Engage's media in another folder) serializes with this
+    ///  site's key or path, so comparing the xml as written would report a change on every run.
+    /// </remarks>
+    protected override XElement CleanseNode(XElement node)
+    {
+        var icons = node.Element(ItemsElementName)?.Elements(ItemElementName)
+            .Select(x => x.Element("Icon"))
+            .OfType<XElement>()
+            .ToList();
+
+        if (icons is null || icons.Count == 0) return base.CleanseNode(node);
+
+        var copy = new XElement(node);
+        foreach (var icon in copy.Element(ItemsElementName)!.Elements(ItemElementName).Select(x => x.Element("Icon")).OfType<XElement>())
+        {
+            var id = ResolveIcon(icon);
+            icon.RemoveAttributes();
+            icon.Value = id?.ToString() ?? string.Empty;
+        }
+
+        return base.CleanseNode(copy);
     }
 }

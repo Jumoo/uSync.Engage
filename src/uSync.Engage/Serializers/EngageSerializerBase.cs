@@ -41,8 +41,12 @@ public abstract class EngageSerializerBase<TObject> : SyncSerializerRoot<TObject
     protected static SyncAttempt<TObject> Succeed(string name, TObject item, IList<uSyncChange> changes)
         => SyncAttempt<TObject>.Succeed(name, item, ChangeType.Import, string.Empty, true, changes);
 
+    /// <remarks>
+    ///  the attempt carries the Engage type name, so the export results are grouped (and named)
+    ///  like the report and import results. without it uSync calls them 'XElement' ("Other").
+    /// </remarks>
     protected static SyncAttempt<XElement> SucceedExport(string name, XElement node)
-        => SyncAttempt<XElement>.Succeed(name, node, ChangeType.Export, Array.Empty<uSyncChange>());
+        => SyncAttempt<XElement>.Succeed(name, node, typeof(TObject), ChangeType.Export);
 
     /// <summary>
     ///  stamp for the created/updated user columns, Engage's own default when no user is known.
