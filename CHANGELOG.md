@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## [17.0.0] - 2026-11-17
+
+First stable release, for Umbraco 17, uSync 17.3.5+ and Umbraco Engage 17.5+.
 
 ### Fixed
 
