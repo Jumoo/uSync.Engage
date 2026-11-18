@@ -12,7 +12,7 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     # Umbraco and our own packages (Jumoo.*, which ship one branch per Umbraco major) set
     # the minimum for anyone installing this package, so they move when we move them.
     # This also opts them out of dependabot security updates.
@@ -32,7 +32,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       github-actions:
         patterns:
@@ -44,7 +44,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/src/uSync.Engage.Complete/Client"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     ignore:
       # pinned for the same reason as Umbraco.* above.
       - dependency-name: "@umbraco-cms/*"
